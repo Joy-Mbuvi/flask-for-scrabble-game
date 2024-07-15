@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 import json
+from app import bcrypt #got the bcrypt instance from app.py
 
 db=SQLAlchemy()
-
 
 class User(db.Model):
     __tablename__='user'
@@ -10,11 +10,19 @@ class User(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password=db.Column(db.String(8),unique=True,nullable=False)
+    hash_password=db.Column(db.String(140),unique=True,nullable=False)
     game=db.relationship('Game',backref='member',uselist=False,cascade='all , delete-orphan')
+    
+        #PASSWORD HASHING
+
+    def set_password(self,password):
+       self. hashed_password = bcrypt.generate_password_hash (password).decode('utf-8') 
+        #inachukuwa password yako inaihash using bcrypt):
+    def check_password(self, password):#verifies the password
+     return bcrypt.check_password_hash(self.password_hash, password)
+    
     def __repr__(self):
         return f'<User {self.username}>'
-    
 
 
 class Game(db.Model):  #one to one relationship,one member can have one game
@@ -30,4 +38,3 @@ class Game(db.Model):  #one to one relationship,one member can have one game
 
 
 
-#PASSWORD HASHING
